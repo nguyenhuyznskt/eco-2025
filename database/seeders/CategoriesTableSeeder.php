@@ -2,17 +2,39 @@
 
 namespace Database\Seeders;
 
+use App\Models\Categories;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+
 
 class CategoriesTableSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('categories')->insert([
-            ['name' => 'Điện thoại', 'slug' => 'dien-thoai', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Laptop', 'slug' => 'laptop', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Phụ kiện', 'slug' => 'phu-kien', 'created_at' => now(), 'updated_at' => now()],
+        // Root category
+        $electronics = Categories::create([
+            'name' => 'Điện thoại',
+            'slug' => 'dien-thoai',
+        ]);
+
+        $laptop = Categories::create([
+            'name' => 'Laptop',
+            'slug' => 'laptop',
+        ]);
+
+        $accessory = Categories::create([
+            'name' => 'Phụ kiện',
+            'slug' => 'phu-kien',
+        ]);
+
+        // Nếu muốn thêm con cho root
+        $electronics->children()->createMany([
+            ['name' => 'iPhone', 'slug' => 'iphone'],
+            ['name' => 'Samsung', 'slug' => 'samsung'],
+        ]);
+
+        $laptop->children()->createMany([
+            ['name' => 'Macbook', 'slug' => 'macbook'],
+            ['name' => 'Asus', 'slug' => 'asus'],
         ]);
     }
 }

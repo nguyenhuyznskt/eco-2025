@@ -8,15 +8,16 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
+           ; // tự tạo parent_id, lft, rgt, depth
+
             $table->id();
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->integer('sort_order')->default(0);
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-            $table->index(['parent_id']);
+    $table->string('name');
+    $table->string('slug')->unique();
+    $table->text('description')->nullable();
+    $table->integer('sort_order')->default(0);
+    $table->boolean('is_active')->default(true);
+    $table->nestedSet(); // thêm parent_id, lft, rgt, depth
+    $table->timestamps();
         });
     }
 

@@ -30,6 +30,7 @@
     />
 
     <!-- Icons -->
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('admin/vendor/fonts/boxicons.css') }}" />
 
     <!-- Core CSS -->
