@@ -63,9 +63,13 @@
 
           <!-- Content wrapper -->
           <div class="content-wrapper">
+            <div class="container mt-5">
+
+              @yield('content')
+            </div>
             <!-- Content -->
 
-            @yield('content')
+           
 
             <!-- / Content -->
             @include('admin.layouts.footer')

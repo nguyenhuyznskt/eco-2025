@@ -25,12 +25,12 @@ class MakeServiceCommand extends Command
      */
     public function handle()
     {
-        $name = $this->argument('name');
+        $name = $this->argument('name'); // ví dụ: Admin/ProductService
         $path = app_path("Services/{$name}.php");
 
-        // Nếu chưa có folder Services thì tạo
-        if (! is_dir(app_path('Services'))) {
-            mkdir(app_path('Services'));
+        // Tạo folder cha nếu chưa có
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0755, true);
         }
 
         // Nếu file đã tồn tại thì báo lỗi
@@ -39,13 +39,21 @@ class MakeServiceCommand extends Command
             return;
         }
 
+        // Xử lý namespace & class
+        $namespace = 'App\\Services';
+        $subNamespace = str_replace('/', '\\', dirname($name));
+        if ($subNamespace !== '.' && $subNamespace !== '') {
+            $namespace .= '\\' . $subNamespace;
+        }
+        $class = basename($name);
+
         // Nội dung file service mặc định
         $template = <<<PHP
 <?php
 
-namespace App\Services;
+namespace {$namespace};
 
-class {$name}
+class {$class}
 {
     //
 }
@@ -54,6 +62,6 @@ PHP;
 
         file_put_contents($path, $template);
 
-        $this->info("Service {$name} created successfully at app/Services/{$name}.php");
+        $this->info("Service {$class} created successfully at {$path}");
     }
 }

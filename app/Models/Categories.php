@@ -10,5 +10,5 @@ class Categories extends Model
 {
     use NodeTrait;
     use HasFactory;
-    protected $fillable = ['name', 'slug', 'description', 'sort_order', 'is_active'];
+    protected $fillable = ['name', 'slug', 'description', 'sort_order', 'is_active', 'parent_id'];
 }

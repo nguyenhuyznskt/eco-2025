@@ -78,7 +78,7 @@
               </li>
 
               <li class="menu-item">
-                <a href="{{route('dashboard')}}" class="menu-link">
+                <a href="{{ route('indexCategory') }}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-categories"></i>
                   <div data-i18n="Analytics">Category</div>
                 </a>
