@@ -19,7 +19,10 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        $categories = $this->categories->getAllCategory();
+        $categories = $this->categories->getAllWithChildren();
+       
+    
+
         return view('admin.category.index', compact('categories'));
     }
 
@@ -31,10 +34,10 @@ class CategoryController extends Controller
         $categories = $this->categories->getRootCategories();
         return view('admin.category.CreateCategory',compact('categories'));
     }
-    public function createChild()
+    public function createChild($id)
     {
        
-       $catparent = $this->categories->getAllCategory();
+       $catparent = $this->categories->getCategoryById($id);
         return view('admin.category.createChild', compact('catparent'));
     }
 
@@ -46,30 +49,39 @@ class CategoryController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'slug' => 'nullable|string',
+            'sort_order' => 'nullable|integer',
+            'is_active' => 'boolean',
+            // 'parent_id' => 'nullable|exists:categories,id'
+        ]);
+    
+        $this->categories->createCategory($data);
+    
+        return redirect()->route('indexCategory')->with('success', 'Tạo danh mục thành công!');
+        // dd($request);
+    }   
+    public function storeChild(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'slug' => 'nullable|string',
             'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',
             'parent_id' => 'nullable|exists:categories,id'
         ]);
     
-        $this->categories->createCategory($data);
-    
-        return redirect()->back()->with('success', 'Tạo danh mục thành công!');
-        // dd($request);
-    }   
-    public function storeChild(Request $request)
-    {
-        // $data = $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'description' => 'nullable|string',
-        //     'sort_order' => 'nullable|integer',
-        //     'is_active' => 'boolean',
-        //     'parent_id' => 'nullable|exists:categories,id'
-        // ]);
-    
-        // $this->categories->createCategory($data);
+        
     
         // return redirect()->back()->with('success', 'Tạo danh mục thành công!');
-        dd($request);
+        // $data = $request->all();
+
+    $this->categories->create($data);
+
+    return redirect()
+        ->route('indexCategory')
+        ->with('success', 'Thêm danh mục thành công!');
+       
     }
 
     /**
@@ -99,7 +111,13 @@ class CategoryController extends Controller
    
     public function destroy(string $id)
     {
-        //
+        $deleted = $this->categories->destroy($id);
+
+        if ($deleted) {
+            return redirect()->route('indexCategory')->with('success', 'Xóa category thành công 😎');
+        }
+
+        return redirect()->back()->with('error', 'Xóa thất bại  😢');
     }
     public function trashed()
     {

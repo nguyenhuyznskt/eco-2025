@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,7 +40,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/{id}/show',[CategoryController::class,'show'])->name('categoryShow');
         Route::get('/create', [CategoryController::class, 'create'])->name('createCategory');
         Route::post('/store', [CategoryController::class, 'store'])->name('categoryStore'); // lưu
-        Route::get('/createChild', [CategoryController::class, 'createChild'])->name('createChildCategory'); // show form
+        Route::get('/{id}/createChild', [CategoryController::class, 'createChild'])->name('createChildCategory'); // show form
         Route::post('/storeChild', [CategoryController::class, 'storeChild'])->name('categoryStoreChild'); // lưu
      
         Route::get('/{id}/edit', [CategoryController::class, 'edit'])->name('categoryEdit'); // form edit
@@ -46,6 +49,20 @@ Route::prefix('admin')->group(function () {
         Route::get('category/trashed', [CategoryController::class, 'trashed'])->name('categoryTrashed');
     Route::post('category/{id}/restore', [CategoryController::class, 'restore'])->name('categoryRestore');
     Route::delete('category/{id}/force', [CategoryController::class, 'forceDelete'])->name('categoryForceDelete');
+
+
+
+
+    });
+    Route::prefix('product')->group(function () {
+        Route::get('/', [ProductController::class, 'index'])->name('indexProduct'); // list
+        Route::get('/create', [ProductController::class, 'create'])->name('createProduct');  // form thêm
+        Route::post('/store', [ProductController::class, 'store'])->name('storeProduct');    // lưu sản phẩm
+        Route::get('/edit/{id}', [ProductController::class, 'edit'])->name('editProduct');   // form sửa
+        Route::put('/update/{id}', [ProductController::class, 'update'])->name('updateProduct'); // cập nhật
+        Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('destroyProduct'); // xóa
+    
+        
     });
 });
 

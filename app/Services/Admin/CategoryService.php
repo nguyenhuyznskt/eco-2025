@@ -40,27 +40,40 @@ class CategoryService
 
         return $category;
     }
+    public function getAllWithChildren()
+{
+    return Categories::with('children')
+        ->whereNull('parent_id')
+        ->get();
+}
+
 
     public function create(array $data)
     {
         DB::beginTransaction();
+    
         try {
             if (!empty($data['parent_id'])) {
-                // tìm cha theo id
+                // Tạo danh mục con
                 $parent = Categories::findOrFail($data['parent_id']);
-                // tạo con
                 $parent->children()->create([
                     'name' => $data['name'],
-                    'slug' => $data['slug'],
+                    'slug' => $data['slug'] ?? Str::slug($data['name']),
+                    'description' => $data['description'] ?? null,
+                    'sort_order' => $data['sort_order'] ?? 0,
+                    'is_active' => $data['is_active'] ?? 1,
                 ]);
             } else {
-                // tạo category gốc
+                // Tạo danh mục cha
                 Categories::create([
                     'name' => $data['name'],
-                    'slug' => $data['slug'],
+                    'slug' => $data['slug'] ?? Str::slug($data['name']),
+                    'description' => $data['description'] ?? null,
+                    'sort_order' => $data['sort_order'] ?? 0,
+                    'is_active' => $data['is_active'] ?? 1,
                 ]);
             }
-
+    
             DB::commit();
             return true;
         } catch (\Exception $e) {
@@ -68,6 +81,7 @@ class CategoryService
             throw $e;
         }
     }
+    
     public function destroy($id)
     {
         $category = Categories::findOrFail($id);

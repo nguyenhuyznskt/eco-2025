@@ -11,4 +11,19 @@ class Categories extends Model
     use NodeTrait;
     use HasFactory;
     protected $fillable = ['name', 'slug', 'description', 'sort_order', 'is_active', 'parent_id'];
+    public function parent()
+{
+    return $this->belongsTo(Categories::class, 'parent_id');
+}
+
+public function children()
+{
+    return $this->hasMany(Categories::class, 'parent_id');
+}
+public function products()
+{
+    return $this->belongsToMany(\App\Models\Product::class, 'category_product', 'category_id', 'product_id');
+}
+
+
 }

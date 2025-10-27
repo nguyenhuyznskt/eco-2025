@@ -18,6 +18,9 @@
                             <label for="name" class="form-label">Tên danh mục</label>
                             <input type="text" class="form-control modern-input" id="name" name="name" placeholder="Nhập tên danh mục" required>
                         </div>
+                        <div class="div">
+                            <input type="hidden" name="parent_id" value="{{ $catparent->id }}">
+                        </div>
 
                         <!-- Slug -->
                         <div class="mb-3">
@@ -35,16 +38,6 @@
                             <label for="sort_order" class="form-label">Thứ tự</label>
                             <input type="number" class="form-control modern-input" id="sort_order" name="sort_order" value="0" min="0">
                         </div>
-                        <div class="mb-3">
-                            <label for="parent_id">Danh mục cha</label>
-                            <select name="parent_id" id="parent_id" class="form-select">
-                                <option value="">-- Không có --</option>
-                                @foreach($catparent as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <!-- Trạng thái -->
                         <div class="form-check mb-3">
                             <input type="checkbox" class="form-check-input modern-check" id="is_active" name="is_active" value="1" checked>

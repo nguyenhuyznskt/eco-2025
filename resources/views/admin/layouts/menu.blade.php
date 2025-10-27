@@ -85,7 +85,7 @@
               </li>
 
               <li class="menu-item">
-                <a href="{{route('dashboard')}}" class="menu-link">
+                <a href="{{route('indexProduct')}}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-box-alt"></i>
                   <div data-i18n="Analytics">Product</div>
                 </a>
