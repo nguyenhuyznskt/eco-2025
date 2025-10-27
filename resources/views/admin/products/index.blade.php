@@ -43,7 +43,7 @@
                     <th>Tên sản phẩm</th>
                     <th>Danh mục</th>
                     <th>Giá</th>
-                    <th>Hiển thị</th>
+                    <th>Hoạt Động</th>
                     <th>Ngày tạo</th>
                     <th class="text-end">Hành động</th>
                 </tr>
@@ -59,7 +59,7 @@
                             @endforeach
                         </td>
                         <td>{{ number_format($p->price, 0, ',', '.') }}đ</td>
-                        <td>{!! $p->is_active ? '<span class="badge bg-success">Hiển thị</span>' : '<span class="badge bg-secondary">Ẩn</span>' !!}</td>
+                        <td>{!! $p->is_active ? '<span class="badge bg-success">Hoạt Động</span>' : '<span class="badge bg-secondary">Dừng</span>' !!}</td>
                         <td>{{ $p->created_at->format('d/m/Y') }}</td>
                         <td class="text-end">
                             <a href="{{ route('editProduct', $p->id) }}" class="btn btn-sm btn-warning">Sửa</a>
