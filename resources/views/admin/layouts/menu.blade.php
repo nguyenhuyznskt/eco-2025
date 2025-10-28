@@ -118,6 +118,13 @@
                   <div data-i18n="Analytics">Attributes</div>
                 </a>
               </li>
+
+              <li class="menu-item {{ request()->routeIs('admin.attribute_value.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.attribute_value.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-swatch"></i>
+                  <div data-i18n="Analytics">Attributes Value</div>
+                </a>
+              </li>
              
             
               <li class="menu-item {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
