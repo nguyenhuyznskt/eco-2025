@@ -41,6 +41,7 @@
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{ asset('admin/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/vendor/libs/apex-charts/apex-charts.css') }}" />
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Helpers -->
     <script src="{{ asset('admin/vendor/js/helpers.js') }}"></script>

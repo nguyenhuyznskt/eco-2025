@@ -1,11 +1,14 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\AdminController;
+
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-
-
+use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\AttributeValueController;
+use App\Http\Controllers\Admin\ProductAttributeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -64,6 +67,44 @@ Route::prefix('admin')->group(function () {
     
         
     });
+    Route::prefix('product/{product}/variants')->group(function () {
+        Route::get('/', [ProductVariantController::class, 'index'])->name('variantIndex');
+        Route::post('/', [ProductVariantController::class, 'store'])->name('variantStore');
+        Route::put('/{variant}', [ProductVariantController::class, 'update'])->name('variantUpdate');
+        Route::delete('/{variant}', [ProductVariantController::class, 'destroy'])->name('variantDestroy');
+    });
+
+
+    Route::prefix('attribute')->as('admin.attribute.')->group(function () {
+        Route::get('/', [AttributeController::class, 'index'])->name('index');
+        Route::get('/create', [AttributeController::class, 'create'])->name('create');
+        Route::post('/', [AttributeController::class, 'store'])->name('store');
+        Route::get('/{attribute}/edit', [AttributeController::class, 'edit'])->name('edit');
+        Route::put('/{attribute}', [AttributeController::class, 'update'])->name('update');
+        Route::delete('/{attribute}', [AttributeController::class, 'destroy'])->name('destroy');
+
+        Route::post('/{attribute}/values', [AttributeValueController::class, 'store'])->name('attIndex');
+        Route::match(['put','patch'],'values/{value}', [AttributeValueController::class, 'update'])->name('attIndex');
+        Route::delete('values/{value}', [AttributeValueController::class, 'destroy'])->name('attIndex');
+
+
+    });
+
+    Route::prefix('attribute-values')->as('admin.attribute-values.')->name('admin.attribute_value.')->group(function () {
+        Route::get('/', [AttributeValueController::class, 'index'])->name('index');
+        Route::get('/create', [AttributeValueController::class, 'create'])->name('create');
+        Route::post('/', [AttributeValueController::class, 'store'])->name('store');
+        Route::get('/{attributeValue}/edit', [AttributeValueController::class, 'edit'])->name('edit');
+        Route::put('/{attributeValue}', [AttributeValueController::class, 'update'])->name('update');
+        Route::delete('/{attributeValue}', [AttributeValueController::class, 'destroy'])->name('destroy');
+    });
+        // Gán attribute values vào Product
+        Route::prefix('product-attributes')->name('admin.product_attribute.')->group(function () {
+            Route::get('/', [ProductAttributeController::class, 'index'])->name('index');
+            Route::get('/assign', [ProductAttributeController::class, 'create'])->name('create');
+            Route::post('/assign', [ProductAttributeController::class, 'store'])->name('store');
+            Route::delete('/{product}/{attributeValue}', [ProductAttributeController::class, 'destroy'])->name('destroy');
+        });
 });
 
 

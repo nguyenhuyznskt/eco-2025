@@ -111,6 +111,14 @@
                   <div data-i18n="Analytics">Variant</div>
                 </a>
               </li>
+
+              <li class="menu-item {{ request()->routeIs('admin.attribute.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.attribute.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-swatch"></i>
+                  <div data-i18n="Analytics">Attributes</div>
+                </a>
+              </li>
+             
             
               <li class="menu-item {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                 <a href="{{ route('dashboard') }}" class="menu-link">
