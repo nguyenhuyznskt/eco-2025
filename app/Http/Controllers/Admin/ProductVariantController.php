@@ -28,6 +28,7 @@ class ProductVariantController extends Controller
     public function store(Request $request, $productId)
     {
         $request->validate([
+            'name' => 'required|string',
             'sku' => 'required|string|max:255|unique:product_variants,sku',
             'price' => 'required|numeric|min:0',
         ]);
@@ -44,6 +45,10 @@ class ProductVariantController extends Controller
             'height' => $request->height,
             'is_active' => $request->has('is_active'),
         ]);
+    //     $product = $svc->createProductWithVariants($data);
+
+    // return redirect()->route('indexProduct')
+    //     ->with('success', 'Tạo sản phẩm và biến thể thành công!');
 
         return back()->with('success', 'Thêm biến thể thành công!');
     }

@@ -75,19 +75,49 @@ Route::prefix('admin')->group(function () {
     });
 
 
+    // Route::prefix('attribute')->as('admin.attribute.')->group(function () {
+    //     Route::get('/', [AttributeController::class, 'index'])->name('index');
+    //     Route::get('/create', [AttributeController::class, 'create'])->name('create');
+    //     Route::post('/', [AttributeController::class, 'store'])->name('store');
+    //     Route::get('/{attribute}/edit', [AttributeController::class, 'edit'])->name('edit');
+    //     Route::put('/{attribute}', [AttributeController::class, 'update'])->name('update');
+    //     Route::delete('/{attribute}', [AttributeController::class, 'destroy'])->name('destroy');
+
+    //     Route::post('/{attribute}/values', [AttributeValueController::class, 'store'])->name('attIndex');
+    //     Route::match(['put','patch'],'values/{value}', [AttributeValueController::class, 'update'])->name('attIndex');
+    //     Route::delete('values/{value}', [AttributeValueController::class, 'destroy'])->name('attIndex');
+
+    //     Route::get('/trashed', [AttributeController::class, 'trashed'])->name('trashed');
+    //     Route::post('/{id}/restore', [AttributeController::class, 'restore'])->name('restore');
+    //     Route::delete('/{id}/force', [AttributeController::class, 'forceDelete'])->name('forceDelete');
+        
+    //     Route::delete('/bulk-delete', [AttributeController::class, 'bulkDelete'])->name('bulkDelete');
+    //     Route::delete('/force-delete-all', [AttributeController::class, 'forceDeleteAll'])->name('forceDeleteAll');
+    //     Route::delete('/bulk-force-delete', [AttributeController::class, 'bulkForceDelete'])->name('bulkForceDelete');
+
+
+
+    // });
+
     Route::prefix('attribute')->as('admin.attribute.')->group(function () {
         Route::get('/', [AttributeController::class, 'index'])->name('index');
         Route::get('/create', [AttributeController::class, 'create'])->name('create');
-        Route::post('/', [AttributeController::class, 'store'])->name('store');
-        Route::get('/{attribute}/edit', [AttributeController::class, 'edit'])->name('edit');
-        Route::put('/{attribute}', [AttributeController::class, 'update'])->name('update');
-        Route::delete('/{attribute}', [AttributeController::class, 'destroy'])->name('destroy');
-
-        Route::post('/{attribute}/values', [AttributeValueController::class, 'store'])->name('attIndex');
-        Route::match(['put','patch'],'values/{value}', [AttributeValueController::class, 'update'])->name('attIndex');
-        Route::delete('values/{value}', [AttributeValueController::class, 'destroy'])->name('attIndex');
-
-
+        Route::post('/store', [AttributeController::class, 'store'])->name('store');
+    
+        // static trước
+        Route::get('/trashed', [AttributeController::class, 'trashed'])->name('trashed');
+        Route::post('/bulk-restore', [AttributeController::class, 'bulkRestore'])->name('bulkRestore');
+        Route::delete('/bulk-delete', [AttributeController::class, 'bulkDelete'])->name('bulkDelete');
+        Route::delete('/bulk-force-delete', [AttributeController::class, 'bulkForceDelete'])->name('bulkForceDelete');
+        Route::delete('/force-delete-all', [AttributeController::class, 'forceDeleteAll'])->name('forceDeleteAll');
+    
+        Route::post('/{id}/restore', [AttributeController::class, 'restore'])->name('restore')->whereNumber('id');
+        Route::delete('/{id}/force', [AttributeController::class, 'forceDelete'])->name('forceDelete')->whereNumber('id');
+    
+        // dynamic sau
+        Route::get('/{attribute}/edit', [AttributeController::class, 'edit'])->name('edit')->whereNumber('attribute');
+        Route::put('/{attribute}', [AttributeController::class, 'update'])->name('update')->whereNumber('attribute');
+        Route::delete('/{attribute}', [AttributeController::class, 'destroy'])->name('destroy')->whereNumber('attribute');
     });
 
     Route::prefix('attribute-values')->as('admin.attribute-values.')->name('admin.attribute_value.')->group(function () {
@@ -97,6 +127,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/{attributeValue}/edit', [AttributeValueController::class, 'edit'])->name('edit');
         Route::put('/{attributeValue}', [AttributeValueController::class, 'update'])->name('update');
         Route::delete('/{attributeValue}', [AttributeValueController::class, 'destroy'])->name('destroy');
+        
     });
         // Gán attribute values vào Product
         Route::prefix('product-attributes')->name('admin.product_attribute.')->group(function () {

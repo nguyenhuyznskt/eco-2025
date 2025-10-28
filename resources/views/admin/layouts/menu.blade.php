@@ -154,6 +154,31 @@
                   <div data-i18n="Analytics">Role</div>
                 </a>
               </li>
+
+              <!-- Account -->
+              <li class="menu-header small text-uppercase"><span class="menu-header-text">Account</span></li>
+
+              <li class="menu-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-user-circle"></i>
+                  <div data-i18n="Profile">My Profile</div>
+                </a>
+              </li>
+
+              <li class="menu-item">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-cog"></i>
+                  <div data-i18n="Settings">Account Settings</div>
+                </a>
+              </li>
+
+              <li class="menu-item">
+                <a href="#" class="menu-link" onclick="alert('Chưa xử lý logout nhé 😅')">
+                  <i class="menu-icon tf-icons bx bx-log-out"></i>
+                  <div data-i18n="Logout">Logout</div>
+                </a>
+              </li>
+
             
               <!-- Layouts -->
               <li class="menu-item">
