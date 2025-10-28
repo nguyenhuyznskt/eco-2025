@@ -70,91 +70,90 @@
   
             <ul class="menu-inner py-1">
               <!-- Dashboard -->
-              <li class="menu-item active">
-                <a href="{{route('dashboard')}}" class="menu-link">
+              <li class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-home-circle"></i>
                   <div data-i18n="Analytics">Dashboard</div>
                 </a>
               </li>
-
-              <li class="menu-item">
+            
+              <li class="menu-item {{ request()->routeIs('indexCategory') ? 'active' : '' }}">
                 <a href="{{ route('indexCategory') }}" class="menu-link">
-                  <i class="menu-icon tf-icons bx bx-categories"></i>
+                  <i class="menu-icon tf-icons bx bx-category"></i>
                   <div data-i18n="Analytics">Category</div>
                 </a>
               </li>
-
-              <li class="menu-item">
-                <a href="{{route('indexProduct')}}" class="menu-link">
+            
+              <li class="menu-item {{ request()->routeIs('indexProduct') ? 'active' : '' }}">
+                <a href="{{ route('indexProduct') }}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-box-alt"></i>
                   <div data-i18n="Analytics">Product</div>
                 </a>
               </li>
-
-               
-
-                
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-party"></i>
-                      <div data-i18n="Analytics">Events</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-basket"></i>
-                      <div data-i18n="Analytics">Order</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                      <div data-i18n="Analytics">Variant</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-alert-square"></i>
-                      <div data-i18n="Analytics">Ticket</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-ticket"></i>
-                      <div data-i18n="Analytics">Voucher</div>
-                    </a>
-                  </li>
-
-
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-user"></i>
-                      <div data-i18n="Analytics">User</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bx-store-alt-2"></i>
-                      <div data-i18n="Analytics">Vendor</div>
-                    </a>
-                  </li>
-                  <li class="menu-item">
-                    <a href="{{route('dashboard')}}" class="menu-link">
-                      <i class="menu-icon tf-icons bx bxs-grid-circle-diagonal-right bx-rotate-180"></i>
-                      <div data-i18n="Analytics">Role</div>
-                    </a>
-                  </li>
-                  
-                 
-                          
-  
+            
+              <li class="menu-item {{ request()->routeIs('events.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-party"></i>
+                  <div data-i18n="Analytics">Events</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('orders.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-basket"></i>
+                  <div data-i18n="Analytics">Order</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('variants.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                  <div data-i18n="Analytics">Variant</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-alert-square"></i>
+                  <div data-i18n="Analytics">Ticket</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('vouchers.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-ticket"></i>
+                  <div data-i18n="Analytics">Voucher</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-user"></i>
+                  <div data-i18n="Analytics">User</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('vendors.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-store-alt-2"></i>
+                  <div data-i18n="Analytics">Vendor</div>
+                </a>
+              </li>
+            
+              <li class="menu-item {{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bxs-grid-circle-diagonal-right bx-rotate-180"></i>
+                  <div data-i18n="Analytics">Role</div>
+                </a>
+              </li>
+            
               <!-- Layouts -->
               <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                   <i class="menu-icon tf-icons bx bx-layout"></i>
                   <div data-i18n="Layouts">Layouts</div>
                 </a>
-  
+            
                 <ul class="menu-sub">
                   <li class="menu-item">
                     <a href="layouts-without-menu.html" class="menu-link">
@@ -183,30 +182,22 @@
                   </li>
                 </ul>
               </li>
-  
-              
+            
               <!-- Misc -->
               <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
               <li class="menu-item">
-                <a
-                  href="https://github.com/themeselection/sneat-html-admin-template-free/issues"
-                  target="_blank"
-                  class="menu-link"
-                >
+                <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-support"></i>
                   <div data-i18n="Support">Support</div>
                 </a>
               </li>
               <li class="menu-item">
-                <a
-                  href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                  target="_blank"
-                  class="menu-link"
-                >
+                <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/" target="_blank" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-file"></i>
                   <div data-i18n="Documentation">Documentation</div>
                 </a>
               </li>
             </ul>
+            
           </aside>
           <!-- / Menu -->     

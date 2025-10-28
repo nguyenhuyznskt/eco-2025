@@ -65,7 +65,7 @@
 
             <div class="col-12 mt-4">
                 <button class="btn btn-success">Lưu</button>
-                <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Quay lại</a>
+                <a href="{{ route('indexProduct') }}" class="btn btn-secondary">Quay lại</a>
             </div>
         </div>
     </form>

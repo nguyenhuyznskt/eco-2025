@@ -4,7 +4,7 @@
 <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold">📦 Danh sách sản phẩm</h4>
-        <a href="{{ route('storeProduct') }}" class="btn btn-primary">+ Thêm sản phẩm</a>
+        <a href="{{ route('createProduct') }}" class="btn btn-primary">+ Thêm sản phẩm</a>
     </div>
 
     {{-- Search & Filter --}}
