@@ -38,7 +38,9 @@ public function images()
 
 public function attributes()
 {
-    return $this->hasMany(ProductAttributeValue::class);
+    return $this->belongsToMany(AttributeValue::class, 'product_attribute_values')
+        ->withPivot(['attribute_id','product_variant_id'])
+        ->withTimestamps();
 }
 public function categories()
 {

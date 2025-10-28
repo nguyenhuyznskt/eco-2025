@@ -5,76 +5,71 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Services\Admin\ProductVariantService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class ProductVariantController extends Controller
 {
-    protected $variantService;
-
-    public function __construct(ProductVariantService $variantService)
+    public function store(Request $request, Product $product): RedirectResponse
     {
-        $this->variantService = $variantService;
-    }
-
-    public function index($productId)
-    {
-        $product = Product::findOrFail($productId);
-        $variants = $this->variantService->getByProductId($productId);
-
-        return view('admin.product_variant.index', compact('product', 'variants'));
-    }
-
-    public function store(Request $request, $productId)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'sku' => 'required|string|max:255|unique:product_variants,sku',
-            'price' => 'required|numeric|min:0',
+        $data = $request->validate([
+            'combinations' => 'required|array|min:1',
+            'combinations.*.value_ids' => 'required|array|min:1',
+            'combinations.*.sku' => 'nullable|string|max:255|unique:product_variants,sku',
+            'combinations.*.price' => 'nullable|numeric|min:0',
+            'combinations.*.compare_price' => 'nullable|numeric|min:0',
+            'combinations.*.is_active' => 'nullable|boolean',
         ]);
 
-        $this->variantService->create([
-            'product_id' => $productId,
-            'sku' => $request->sku,
-            'attributes' => $request->attributes ? json_encode($request->attributes) : null,
-            'price' => $request->price,
-            'compare_price' => $request->compare_price,
-            'weight' => $request->weight,
-            'length' => $request->length,
-            'width' => $request->width,
-            'height' => $request->height,
-            'is_active' => $request->has('is_active'),
-        ]);
-    //     $product = $svc->createProductWithVariants($data);
+        DB::transaction(function() use ($product, $data) {
+            foreach ($data['combinations'] as $combo) {
+                $valueIds = array_map('intval', Arr::get($combo, 'value_ids', []));
+                sort($valueIds);
+                $variant = ProductVariant::create([
+                    'product_id'    => $product->id,
+                    'sku'           => Arr::get($combo, 'sku'),
+                    'attributes'    => ['value_ids' => $valueIds],
+                    'price'         => Arr::get($combo, 'price'),
+                    'compare_price' => Arr::get($combo, 'compare_price'),
+                    'is_active'     => Arr::get($combo, 'is_active', 1),
+                ]);
+                $pairs = DB::table('attribute_values')->whereIn('id',$valueIds)->get(['id as attribute_value_id','attribute_id']);
+                $rows = [];
+                foreach ($pairs as $p) $rows[] = [
+                    'product_id'         => $product->id,
+                    'product_variant_id' => $variant->id,
+                    'attribute_id'       => (int)$p->attribute_id,
+                    'attribute_value_id' => (int)$p->attribute_value_id,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ];
+                if ($rows) DB::table('product_attribute_values')->insert($rows);
+            }
+        });
 
-    // return redirect()->route('indexProduct')
-    //     ->with('success', 'Tạo sản phẩm và biến thể thành công!');
-
-        return back()->with('success', 'Thêm biến thể thành công!');
+        return back()->with('success','Đã thêm biến thể');
     }
 
-    public function update(Request $request, $productId, $variantId)
+    public function update(Request $request, Product $product, ProductVariant $variant): RedirectResponse
     {
-        $variant = ProductVariant::findOrFail($variantId);
-
-        $variant->update([
-            'price' => $request->price,
-            'compare_price' => $request->compare_price,
-            'weight' => $request->weight,
-            'length' => $request->length,
-            'width' => $request->width,
-            'height' => $request->height,
-            'is_active' => $request->has('is_active'),
+        $payload = $request->validate([
+            'sku'           => 'nullable|string|max:255|unique:product_variants,sku,'.$variant->id,
+            'price'         => 'nullable|numeric|min:0',
+            'compare_price' => 'nullable|numeric|min:0',
+            'is_active'     => 'nullable|boolean',
         ]);
-
-        return back()->with('success', 'Cập nhật biến thể thành công!');
+        $variant->update($payload);
+        return back()->with('success','Đã cập nhật biến thể');
     }
 
-    public function destroy($productId, $variantId)
+    public function destroy(Product $product, ProductVariant $variant): RedirectResponse
     {
-        $variant = ProductVariant::findOrFail($variantId);
-        $variant->delete();
-
-        return back()->with('success', 'Xoá biến thể thành công!');
+        DB::transaction(function() use ($variant) {
+            DB::table('product_attribute_values')->where('product_variant_id',$variant->id)->delete();
+            $variant->delete();
+        });
+        return back()->with('success','Đã xóa biến thể');
     }
 }

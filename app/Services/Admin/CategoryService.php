@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Str;
 use App\Models\Categories;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 class CategoryService
 {
@@ -119,6 +120,20 @@ public function getCategoryById($id)
     {
         $category = Categories::findOrFail($id);
         return $category->parent; // nestedset đã có quan hệ parent()
+    }
+    public function getLeafCategories(): Collection
+    {
+        return Categories::whereDoesntHave('children')
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id']);
+    }
+
+    /**
+     * Lấy danh mục cha -> con dạng cây (nếu sau này cần hiển thị dạng nested)
+     */
+    public function getTree(): Collection
+    {
+        return Categories::with('children')->whereNull('parent_id')->get();
     }
 
 

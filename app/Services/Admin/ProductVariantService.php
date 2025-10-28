@@ -2,81 +2,88 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Attribute;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class ProductVariantService
 {
-    //
-    public function getByProductId($productId): Collection
+    /**
+     * $payload:
+     *  [
+     *    'combinations' => [
+     *       ['value_ids' => [12,34], 'sku' => 'SKU-RED-M', 'price' => 199000, 'compare_price' => null, 'is_active' => 1],
+     *       ...
+     *    ]
+     *  ]
+     * => value_ids là mảng id của attribute_values tạo nên variant.
+     */
+    public function createMany(Product $product, array $payload): int
     {
-        return ProductVariant::where('product_id', $productId)->get();
-    }
+        $combos = Arr::get($payload, 'combinations', []);
+        $count  = 0;
 
-    public function create(array $data): ProductVariant
-    {
-        return ProductVariant::create($data);
+        DB::transaction(function() use ($product, $combos, &$count) {
+            foreach ($combos as $combo) {
+                $valueIds = array_map('intval', Arr::get($combo, 'value_ids', []));
+                if (empty($valueIds)) continue;
+
+                // attributes JSON để tiện hiển thị (nhớ chuẩn hoá sắp xếp cho duy nhất)
+                sort($valueIds);
+                $attrJson = ['value_ids' => $valueIds];
+
+                $variant = ProductVariant::create([
+                    'product_id'    => $product->id,
+                    'sku'           => Arr::get($combo, 'sku'),
+                    'attributes'    => $attrJson,
+                    'price'         => Arr::get($combo, 'price'),
+                    'compare_price' => Arr::get($combo, 'compare_price'),
+                    'weight'        => Arr::get($combo, 'weight'),
+                    'length'        => Arr::get($combo, 'length'),
+                    'width'         => Arr::get($combo, 'width'),
+                    'height'        => Arr::get($combo, 'height'),
+                    'is_active'     => Arr::get($combo, 'is_active', 1),
+                ]);
+
+                // map value_ids -> pivot (gắn cho variant)
+                $rows = [];
+                foreach ($valueIds as $vid) {
+                    $rows[] = [
+                        'product_id'         => $product->id,
+                        'product_variant_id' => $variant->id,
+                        // lấy attribute_id từ attribute_values hoặc từ bảng product_attribute_values đã gắn trước đó:
+                        // ở đây chèn tạm attribute_id = null, nhưng tốt nhất lookup:
+                        'attribute_id'       => DB::table('attribute_values')->where('id', $vid)->value('attribute_id'),
+                        'attribute_value_id' => $vid,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+                DB::table('product_attribute_values')->insert($rows);
+
+                $count++;
+            }
+        });
+
+        return $count;
     }
 
     public function update(ProductVariant $variant, array $data): ProductVariant
     {
-        $variant->update($data);
+        $variant->update(Arr::only($data, [
+            'sku','price','compare_price','weight','length','width','height','is_active'
+        ]));
         return $variant;
     }
 
-    public function delete(ProductVariant $variant): bool
+    public function delete(ProductVariant $variant): void
     {
-        return $variant->delete();
-    }
-    public function createProductWithVariants(array $data)
-    {
-        // 1. Tạo sản phẩm cha
-        $product = Product::create($data);
-
-        // 2. Lấy các attributes có is_variation = 1
-        $variationAttributes = Attribute::with('values')
-            ->where('is_variation', true)
-            ->get();
-
-        // Nếu không có attribute nào là biến thể => return luôn
-        if ($variationAttributes->isEmpty()) return $product;
-
-        // 3. Sinh combinations từ attribute values
-        $combos = $this->generateCombinations(
-            $variationAttributes->pluck('values.*.id', 'name')->toArray()
-        );
-
-        // 4. Tạo từng variant
-        foreach ($combos as $combo) {
-            ProductVariant::create([
-                'product_id' => $product->id,
-                'name' => $product->name . ' - ' . implode(' / ', $combo),
-                'attributes' => json_encode($combo),
-                'price' => $data['price'] ?? 0,
-                'stock' => 0,
-                'sku' => strtoupper(Str::random(8)),
-            ]);
-        }
-
-        return $product;
-    }
-
-    // Sinh tổ hợp từ mảng các attribute values
-    private function generateCombinations(array $arrays)
-    {
-        $result = [[]];
-        foreach ($arrays as $attribute => $values) {
-            $new = [];
-            foreach ($result as $combo) {
-                foreach ($values as $value) {
-                    $new[] = array_merge($combo, [$attribute => $value]);
-                }
-            }
-            $result = $new;
-        }
-        return $result;
+        DB::transaction(function() use ($variant) {
+            DB::table('product_attribute_values')
+              ->where('product_variant_id', $variant->id)
+              ->delete();
+            $variant->delete(); // nếu muốn soft delete thì thêm SoftDeletes vào model và cột DB
+        });
     }
 }

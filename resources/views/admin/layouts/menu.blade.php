@@ -84,8 +84,8 @@
                 </a>
               </li>
             
-              <li class="menu-item {{ request()->routeIs('indexProduct') ? 'active' : '' }}">
-                <a href="{{ route('indexProduct') }}" class="menu-link">
+              <li class="menu-item {{ request()->routeIs('admin.product.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.product.index') }}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-box-alt"></i>
                   <div data-i18n="Analytics">Product</div>
                 </a>

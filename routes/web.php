@@ -100,29 +100,52 @@ Route::prefix('admin')->group(function () {
         Route::get('/', [AttributeValueController::class, 'index'])->name('index');
         Route::get('/create', [AttributeValueController::class, 'create'])->name('create');
         Route::post('/store', [AttributeValueController::class, 'store'])->name('store');
-    
+
         // 🔒 Bulk + trash: đặt TRƯỚC route động
         Route::post('/bulk-delete', [AttributeValueController::class, 'bulkDelete'])->name('bulk-delete');
-        Route::match(['POST','DELETE'], '/bulk-force-delete', [AttributeValueController::class, 'bulkForceDelete'])->name('bulk-force-delete');
+        Route::match(['POST', 'DELETE'], '/bulk-force-delete', [AttributeValueController::class, 'bulkForceDelete'])->name('bulk-force-delete');
         Route::post('/bulk-restore', [AttributeValueController::class, 'bulkRestore'])->name('bulk-restore');
         Route::get('/trashed', [AttributeValueController::class, 'trashed'])->name('trashed');
-    
+
         // Khôi phục/Xóa vĩnh viễn 1 item
         Route::post('/{id}/restore', [AttributeValueController::class, 'restore'])->name('restore')->whereNumber('id');
         Route::delete('/{id}/force', [AttributeValueController::class, 'forceDelete'])->name('force-delete')->whereNumber('id');
-    
+
         // 🔽 Route động – nhớ whereNumber để khỏi bắt nhầm
         Route::get('/{attributeValue}/edit', [AttributeValueController::class, 'edit'])->name('edit')->whereNumber('attributeValue');
         Route::put('/{attributeValue}', [AttributeValueController::class, 'update'])->name('update')->whereNumber('attributeValue');
         Route::delete('/{attributeValue}', [AttributeValueController::class, 'destroy'])->name('destroy')->whereNumber('attributeValue');
     });
+
+    // routes/web.php (bên trong Route::prefix('admin')->group(...))
+    Route::prefix('product')->name('admin.product.')->group(function () {
+        Route::get('/',               [ProductController::class, 'index'])->name('index');
+        Route::get('/create',         [ProductController::class, 'create'])->name('create');
+        Route::post('/store',         [ProductController::class, 'store'])->name('store');
     
-    // Gán attribute values vào Product
-    Route::prefix('product-attributes')->name('admin.product_attribute.')->group(function () {
-        Route::get('/', [ProductAttributeController::class, 'index'])->name('index');
-        Route::get('/assign', [ProductAttributeController::class, 'create'])->name('create');
-        Route::post('/assign', [ProductAttributeController::class, 'store'])->name('store');
-        Route::delete('/{product}/{attributeValue}', [ProductAttributeController::class, 'destroy'])->name('destroy');
+        // dynamic
+        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit')->whereNumber('product');
+        Route::put('/{product}',      [ProductController::class, 'update'])->name('update')->whereNumber('product');
+        Route::delete('/{product}',   [ProductController::class, 'destroy'])->name('destroy')->whereNumber('product');
+    
+        // bulk soft delete (từ index)
+        Route::post('/bulk-delete',   [ProductController::class, 'bulkDelete'])->name('bulk-delete');
+    
+        // trash
+        Route::get('/trashed',                      [ProductController::class, 'trashed'])->name('trashed');
+        Route::post('/bulk-restore',                [ProductController::class, 'bulkRestore'])->name('bulk-restore');
+        Route::match(['POST','DELETE'],'/bulk-force-delete', [ProductController::class, 'bulkForceDelete'])->name('bulk-force-delete');
+        Route::delete('/force-delete-all',          [ProductController::class, 'forceDeleteAll'])->name('forceDeleteAll');
+    
+        Route::post('/{id}/restore',                [ProductController::class, 'restore'])->name('restore')->whereNumber('id');
+        Route::delete('/{id}/force',                [ProductController::class, 'forceDelete'])->name('force-delete')->whereNumber('id');
+    });
+    
+    // PRODUCT VARIANTS (dùng trong trang create/edit product)
+    Route::prefix('product/{product}/variants')->name('admin.product.variant.')->whereNumber('product')->group(function () {
+        Route::post('/',               [ProductVariantController::class, 'store'])->name('store');      // tạo 1 hoặc nhiều
+        Route::put('/{variant}',       [ProductVariantController::class, 'update'])->name('update')->whereNumber('variant');
+        Route::delete('/{variant}',    [ProductVariantController::class, 'destroy'])->name('destroy')->whereNumber('variant');
     });
 });
 

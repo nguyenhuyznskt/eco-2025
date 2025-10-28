@@ -1,146 +1,213 @@
 @extends('admin.layouts.layout')
 
 @section('content')
+<div class="p-6 max-w-6xl mx-auto space-y-8">
 
-{{-- 🔔 Toast --}}
-@if (session('success') || session('error'))
-  <div id="flash-toast"
-       class="fixed top-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg text-sm font-medium text-white
-              {{ session('success') ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-pink-600' }}">
-    <i class="bx {{ session('success') ? 'bx-check-circle' : 'bx-x-circle' }} text-lg"></i>
-    <span>{{ session('success') ?? session('error') }}</span>
-  </div>
-@endif
-
-<div class="p-6 space-y-6">
-
-  {{-- 🧩 Header --}}
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  {{-- 🧱 Header --}}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div>
-      <h1 class="text-3xl font-bold text-gray-800 tracking-tight">➕ Thêm sản phẩm mới</h1>
-      <p class="text-gray-500 mt-1 text-sm">Nhập thông tin chi tiết để tạo sản phẩm mới trong cửa hàng.</p>
+      <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+        🛍️ Tạo sản phẩm kèm biến thể
+      </h1>
+      <p class="text-gray-500 text-sm mt-1">Thêm mới sản phẩm cơ bản, đồng thời tạo các biến thể tùy theo thuộc tính.</p>
     </div>
 
-    <a href="{{ route('indexProduct') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200">
+    <a href="{{ route('admin.product.index') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
       <i class="bx bx-arrow-back text-lg"></i>
       <span>Quay lại danh sách</span>
     </a>
   </div>
 
-  {{-- 🧾 Form thêm sản phẩm --}}
-  <form action="{{ route('storeProduct') }}" method="POST" enctype="multipart/form-data"
-        class="bg-white shadow rounded-xl border border-gray-200 p-6 space-y-6 max-w-5xl mx-auto">
+  {{-- 🧾 FORM --}}
+  <form action="{{ route('admin.product.store') }}" method="POST"
+        class="bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-8">
     @csrf
 
-    {{-- 🔹 Tên & slug --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Tên sản phẩm <span class="text-red-500">*</span></label>
-        <input type="text" name="name" value="{{ old('name') }}"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
-        @error('name')
-          <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-        @enderror
-      </div>
+    {{-- 🧩 Thông tin cơ bản --}}
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="bx bx-info-circle text-indigo-500 text-xl"></i> Thông tin sản phẩm
+      </h2>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Slug</label>
-        <input type="text" name="slug" value="{{ old('slug') }}"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
+          <input type="text" name="name" value="{{ old('name') }}" required
+                 class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Slug (tùy chọn)</label>
+          <input type="text" name="slug" value="{{ old('slug') }}"
+                 class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Giá bán</label>
+          <input type="number" name="price" value="{{ old('price') }}" step="0.01"
+                 class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Giá gốc</label>
+          <input type="number" name="compare_price" value="{{ old('compare_price') }}" step="0.01"
+                 class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
       </div>
     </div>
 
-    {{-- 🔹 Danh mục --}}
+    {{-- 🗂️ Danh mục & vendor --}}
     <div>
-      <label class="block text-sm font-medium text-gray-700">Danh mục</label>
-      <select name="category_ids[]" multiple
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 h-32 text-sm">
-        @foreach($categories as $cat)
-          <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="bx bx-category text-indigo-500 text-xl"></i> Danh mục & Nhà bán
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Danh mục</label>
+          <select name="category_id"
+                  class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">-- Chọn danh mục --</option>
+            @foreach($categories as $cat)
+  <option value="{{ $cat->id }}">
+    {{ $cat->parent ? $cat->parent->name.' → '.$cat->name : $cat->name }}
+  </option>
+@endforeach
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nhà bán</label>
+          <select name="vendor_id"
+                  class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="">-- Chọn vendor --</option>
+            @foreach($vendors as $v)
+              <option value="{{ $v->id }}">{{ $v->shop_name }}</option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {{-- ⚙️ Thuộc tính biến thể --}}
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <i class="bx bx-layer text-indigo-500 text-xl"></i> Thuộc tính biến thể
+      </h2>
+
+      <div class="space-y-4">
+        @foreach($variationAttributes as $attr)
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="font-medium text-gray-800 mb-2">{{ $attr->name }}</div>
+            <div class="flex flex-wrap gap-2">
+              @foreach($attr->values as $val)
+                <label class="inline-flex items-center gap-2 px-3 py-2 bg-gray-50 border rounded-lg hover:bg-gray-100 transition">
+                  <input type="checkbox"
+                         name="attribute_values[{{ $attr->id }}][]"
+                         value="{{ $val->id }}"
+                         data-attr-name="{{ $attr->name }}"
+                         data-val-label="{{ $val->label ?? $val->value }}"
+                         class="variant-value w-4 h-4 text-indigo-600 focus:ring-indigo-500 rounded border-gray-300">
+                  <span class="text-gray-700">{{ $val->label ?? $val->value }}</span>
+                </label>
+              @endforeach
+            </div>
+          </div>
         @endforeach
-      </select>
-      <p class="text-gray-500 text-sm mt-1">Giữ Ctrl (hoặc Cmd) để chọn nhiều danh mục</p>
-    </div>
-
-    {{-- 🔹 Giá bán & Giá gốc --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Giá bán <span class="text-red-500">*</span></label>
-        <input type="number" name="price" value="{{ old('price') }}"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" required>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Giá gốc</label>
-        <input type="number" name="compare_price" value="{{ old('compare_price') }}"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
       </div>
     </div>
 
-    {{-- 🔹 Mô tả --}}
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Mô tả ngắn</label>
-      <textarea name="short_description" rows="2"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">{{ old('short_description') }}</textarea>
+    {{-- 🔨 Button tạo biến thể --}}
+    <button type="button" id="btnGenerate"
+            class="inline-flex items-center gap-2 px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+      <i class="bx bx-magic-wand text-lg"></i> Tạo biến thể
+    </button>
+
+    {{-- 🧮 Bảng biến thể --}}
+    <div id="variantTable" class="hidden">
+      <h2 class="text-xl font-semibold text-gray-800 mt-6 mb-3 flex items-center gap-2">
+        <i class="bx bx-grid-alt text-indigo-500 text-xl"></i> Danh sách biến thể
+      </h2>
+
+      <div class="overflow-x-auto border border-gray-200 rounded-lg">
+        <table class="min-w-full text-sm text-left text-gray-700">
+          <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+            <tr>
+              <th class="px-4 py-2 font-medium">Tổ hợp</th>
+              <th class="px-4 py-2 font-medium">SKU</th>
+              <th class="px-4 py-2 font-medium">Giá</th>
+              <th class="px-4 py-2 font-medium">Giá gốc</th>
+              <th class="px-4 py-2 font-medium text-center">Hiển thị</th>
+              <th class="px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody id="variantBody"></tbody>
+        </table>
+      </div>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Mô tả chi tiết</label>
-      <textarea name="description" rows="5"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">{{ old('description') }}</textarea>
-    </div>
-
-    {{-- 🔹 Ảnh --}}
-    <div class="md:w-1/2">
-      <label class="block text-sm font-medium text-gray-700">Ảnh sản phẩm</label>
-      <input type="file" name="image" accept="image/*"
-             class="mt-1 block w-full text-sm text-gray-700 border border-gray-300 rounded-md cursor-pointer focus:ring-indigo-500 focus:border-indigo-500">
-      <p class="text-gray-500 text-sm mt-1">Chỉ chọn 1 ảnh đại diện (jpg, png...)</p>
-    </div>
-
-    {{-- 🔹 Checkbox --}}
-    <div class="flex flex-wrap gap-6 mt-4">
-      <label class="flex items-center gap-2">
-        <input type="checkbox" name="is_active" value="1" checked
-               class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-        <span class="text-sm text-gray-700">Hiển thị</span>
-      </label>
-
-      <label class="flex items-center gap-2">
-        <input type="checkbox" name="is_featured" value="1"
-               class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-        <span class="text-sm text-gray-700">Sản phẩm nổi bật</span>
-      </label>
-    </div>
-
-    {{-- 🔹 Buttons --}}
-    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-      <a href="{{ route('indexProduct') }}"
-         class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition text-sm">
-        <i class="bx bx-arrow-back text-base"></i> Quay lại
-      </a>
-
+    {{-- 🖊️ Submit --}}
+    <div class="flex justify-end pt-4">
       <button type="submit"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-md shadow hover:shadow-md hover:scale-[1.02] transition text-sm">
-        <i class="bx bx-save text-base"></i> Lưu sản phẩm
+              class="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+        <i class="bx bx-save text-lg"></i> Lưu sản phẩm
       </button>
     </div>
   </form>
 </div>
 
-{{-- 🧠 Script toast --}}
+{{-- 🧠 Script sinh tổ hợp --}}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const toast = document.getElementById('flash-toast');
-  if (toast) {
-    setTimeout(() => {
-      toast.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-10px)';
-      setTimeout(() => toast.remove(), 600);
-    }, 4000);
-  }
-});
-</script>
+(function(){
+  const btn = document.getElementById('btnGenerate');
+  const table = document.getElementById('variantTable');
+  const tbody = document.getElementById('variantBody');
 
+  const cartesian = (arrays) => arrays.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))), [[]]);
+
+  btn.addEventListener('click', () => {
+    const groups = [];
+    document.querySelectorAll('.variant-value:checked').forEach(cb => {
+      const attr = cb.dataset.attrName;
+      const val  = cb.dataset.valLabel;
+      const id   = cb.value;
+      let g = groups.find(x => x.attr === attr);
+      if (!g) { g = { attr, items: [] }; groups.push(g); }
+      g.items.push({ id, val });
+    });
+
+    if (groups.length < 1) {
+      alert('⚠️ Chọn ít nhất 1 thuộc tính!');
+      return;
+    }
+
+    const combos = cartesian(groups.map(g => g.items));
+    tbody.innerHTML = '';
+    combos.forEach((combo, i) => {
+      const labels = combo.map(c => c.val).join(' / ');
+      const ids    = combo.map(c => c.id);
+      const tr = document.createElement('tr');
+      tr.className = 'border-t hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="px-4 py-2 font-medium text-gray-800">${labels}
+          ${ids.map(id => `<input type="hidden" name="combinations[${i}][value_ids][]" value="${id}">`).join('')}
+        </td>
+        <td class="px-4 py-2"><input name="combinations[${i}][sku]" class="border-gray-300 rounded-lg w-32"></td>
+        <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][price]" class="border-gray-300 rounded-lg w-24"></td>
+        <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][compare_price]" class="border-gray-300 rounded-lg w-24"></td>
+        <td class="px-4 py-2 text-center"><input type="checkbox" name="combinations[${i}][is_active]" value="1" checked></td>
+        <td class="px-4 py-2 text-right">
+          <button type="button" class="text-red-600 hover:text-red-800 remove"><i class="bx bx-trash"></i></button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+    table.classList.remove('hidden');
+
+    tbody.querySelectorAll('.remove').forEach(btn =>
+      btn.addEventListener('click', e => {
+        e.target.closest('tr').remove();
+        if (!tbody.children.length) table.classList.add('hidden');
+      })
+    );
+  });
+})();
+</script>
 @endsection
