@@ -3,32 +3,39 @@
 namespace App\Services\Admin;
 
 use App\Models\AttributeValue;
-use App\Models\Attribute;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class AttributeValueService
 {
-    public function paginate($filters = [])
+    public function paginateWithSearch(array $filters=[]): LengthAwarePaginator
     {
-        $q = AttributeValue::query()->with('attribute');
-        if (!empty($filters['s'])) {
-            $q->where('value', 'like', '%' . trim($filters['s']) . '%');
+        $q = AttributeValue::with('attribute');
+
+        if (!empty($filters['search'])) {
+            $q->where('value','like','%'.$filters['search'].'%');
         }
-        return $q->orderByDesc('id')->paginate(15);
+        if (!empty($filters['attribute_id'])) {
+            $q->where('attribute_id',$filters['attribute_id']);
+        }
+        if (!empty($filters['with_trashed'])) {
+            $q->withTrashed();
+        }
+
+        return $q->orderBy('sort_order')->paginate(15)->withQueryString();
     }
 
-    public function store(array $data)
+    public function store(array $data): AttributeValue
     {
+        $data['sort_order'] = $data['sort_order'] ?? 0;
         return AttributeValue::create($data);
     }
+    
 
-    public function update(AttributeValue $value, array $data)
+    public function update(AttributeValue $row, array $data): AttributeValue
     {
-        $value->update($data);
-        return $value;
+        $data['sort_order'] = $data['sort_order'] ?? 0;
+        $row->update($data);
+        return $row;
     }
-
-    public function destroy(AttributeValue $value)
-    {
-        $value->delete();
-    }
+    
 }
