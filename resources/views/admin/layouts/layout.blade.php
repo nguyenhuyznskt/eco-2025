@@ -94,7 +94,13 @@
       >Upgrade to Pro</a>
     </div> --}}
 
+    
+    {{-- Alpine.js --}}
+
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
     <!-- Core JS -->
+    
     <script src="{{ asset('admin/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('admin/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('admin/vendor/js/bootstrap.js') }}"></script>

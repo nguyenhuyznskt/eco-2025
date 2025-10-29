@@ -6,15 +6,27 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use App\Models\ProductImage;
+use Illuminate\Support\Str;
 
 class ProductCrudService
 {
     public function create(array $productData, array $attrMap = [], array $combinations = []): Product
     {
         return DB::transaction(function() use ($productData, $attrMap, $combinations) {
+    
+            // 🔹 1. Tạo slug tự động nếu trống
+            if (empty($productData['slug'])) {
+                $productData['slug'] = Str::slug($productData['name']) . '-' . uniqid();
+            }
+    
+            // 🔹 2. Xử lý meta nếu có (convert mảng -> JSON)
+          
+    
+            // 🔹 3. Tạo product
             $product = Product::create($productData);
-
-            // gán attribute values cấp product
+    
+            // 🔹 4. Gán attribute values cấp product
             $rows = [];
             foreach ($attrMap as $attrId => $valueIds) {
                 foreach ($valueIds as $valId) {
@@ -29,22 +41,42 @@ class ProductCrudService
                 }
             }
             if ($rows) DB::table('product_attribute_values')->insert($rows);
-
-            // tạo variants từ tổ hợp
+    
+            // 🔹 5. Tạo variants từ tổ hợp
             foreach ($combinations as $combo) {
                 $valueIds = Arr::get($combo, 'value_ids', []);
                 sort($valueIds);
-                $variant = ProductVariant::create([
-                    'product_id'    => $product->id,
-                    'sku'           => trim((string) Arr::get($combo, 'sku')) ?: 'SKU-' . uniqid(), // ✅ nếu trống thì tự sinh mã SKU
-                    'attributes'    => ['value_ids' => $valueIds],
-                    'price'         => (float) Arr::get($combo, 'price', 0),
-                    'compare_price' => (float) Arr::get($combo, 'compare_price', 0),
-                    'is_active'     => (int) Arr::get($combo, 'is_active', 1),
-                ]);
+    
+                $rawSku = trim((string) Arr::get($combo, 'sku'));
+if ($rawSku === '' || $rawSku === null) {
+    $base = Str::slug($product->name, '-');
+    $uniq = strtoupper(Str::random(5));
+    $rawSku = $base . '-' . $uniq;
+}
 
-                // map lại pivot cho variant
-                $pairs = DB::table('attribute_values')->whereIn('id',$valueIds)->get(['id as attribute_value_id','attribute_id']);
+$variant = ProductVariant::create([
+    'product_id'    => $product->id,
+    'sku'           => $rawSku,
+    'attributes'    => ['value_ids' => $valueIds],
+    'price'         => Arr::get($combo, 'price', 0),
+    'compare_price' => Arr::get($combo, 'compare_price', 0),
+    'is_active'     => Arr::get($combo, 'is_active', 1),
+]);
+
+    
+                // 🔹 6. Nếu biến thể có ảnh, lưu vào bảng product_images
+                if (!empty($combo['image'])) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'variant_id' => $variant->id,
+                        'path'       => $combo['image'],
+                        'is_primary' => 1,
+                    ]);
+                }
+    
+                // 🔹 7. Gán attribute_value cho variant
+                $pairs = DB::table('attribute_values')->whereIn('id', $valueIds)
+                    ->get(['id as attribute_value_id', 'attribute_id']);
                 $pivot = [];
                 foreach ($pairs as $p) {
                     $pivot[] = [
@@ -58,10 +90,11 @@ class ProductCrudService
                 }
                 if ($pivot) DB::table('product_attribute_values')->insert($pivot);
             }
-
+    
             return $product;
         });
     }
+    
 
     public function update(
         Product $product,

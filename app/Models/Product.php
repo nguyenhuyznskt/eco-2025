@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Vendor;
+use App\Models\Categories;
 
 
 class Product extends Model
@@ -25,6 +27,9 @@ class Product extends Model
         'views',
         'meta',
     ];
+    protected $casts = [
+        'meta' => 'array',
+    ];
     
     public function variants()
 {
@@ -42,11 +47,15 @@ public function attributes()
         ->withPivot(['attribute_id','product_variant_id'])
         ->withTimestamps();
 }
-public function categories()
+public function vendor()
 {
-    return $this->belongsToMany(\App\Models\Categories::class, 'category_product', 'product_id', 'category_id');
+    return $this->belongsTo(Vendor::class, 'vendor_id');
 }
 
+public function category()
+{
+    return $this->belongsTo(Categories::class, 'category_id');
+}
 
 
 

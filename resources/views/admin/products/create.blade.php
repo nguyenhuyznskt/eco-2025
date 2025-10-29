@@ -135,13 +135,18 @@
               <th class="px-4 py-2 font-medium">Giá</th>
               <th class="px-4 py-2 font-medium">Giá gốc</th>
               <th class="px-4 py-2 font-medium text-center">Hiển thị</th>
+              <th class="px-4 py-2 font-medium">Ảnh</th>
+
               <th class="px-4 py-2"></th>
+              
             </tr>
           </thead>
           <tbody id="variantBody"></tbody>
         </table>
       </div>
     </div>
+    @include('admin.products._spec', ['product' => $product ?? null])
+
 
     {{-- 🖊️ Submit --}}
     <div class="flex justify-end pt-4">
@@ -186,16 +191,22 @@
       const tr = document.createElement('tr');
       tr.className = 'border-t hover:bg-gray-50';
       tr.innerHTML = `
-        <td class="px-4 py-2 font-medium text-gray-800">${labels}
-          ${ids.map(id => `<input type="hidden" name="combinations[${i}][value_ids][]" value="${id}">`).join('')}
-        </td>
-        <td class="px-4 py-2"><input name="combinations[${i}][sku]" class="border-gray-300 rounded-lg w-32"></td>
-        <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][price]" class="border-gray-300 rounded-lg w-24"></td>
-        <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][compare_price]" class="border-gray-300 rounded-lg w-24"></td>
-        <td class="px-4 py-2 text-center"><input type="checkbox" name="combinations[${i}][is_active]" value="1" checked></td>
-        <td class="px-4 py-2 text-right">
-          <button type="button" class="text-red-600 hover:text-red-800 remove"><i class="bx bx-trash"></i></button>
-        </td>`;
+  <td class="px-4 py-2 font-medium text-gray-800">${labels}
+    ${ids.map(id => `<input type="hidden" name="combinations[${i}][value_ids][]" value="${id}">`).join('')}
+  </td>
+  <td class="px-4 py-2"><input name="combinations[${i}][sku]" class="border-gray-300 rounded-lg w-32"></td>
+  <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][price]" class="border-gray-300 rounded-lg w-24"></td>
+  <td class="px-4 py-2"><input type="number" step="0.01" name="combinations[${i}][compare_price]" class="border-gray-300 rounded-lg w-24"></td>
+  <td class="px-4 py-2 text-center"><input type="checkbox" name="combinations[${i}][is_active]" value="1" checked></td>
+
+  <!-- 🖼️ Cột upload ảnh -->
+  <td class="px-4 py-2">
+    <input type="file" name="combinations[${i}][image]" accept="image/*" class="text-sm">
+  </td>
+
+  <td class="px-4 py-2 text-right">
+    <button type="button" class="text-red-600 hover:text-red-800 remove"><i class="bx bx-trash"></i></button>
+  </td>`;
       tbody.appendChild(tr);
     });
 

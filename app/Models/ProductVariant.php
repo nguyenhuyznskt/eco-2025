@@ -20,6 +20,12 @@ class ProductVariant extends Model
         'height',
         'is_active',
     ];
+    public function image()
+{
+    return $this->hasOne(ProductImage::class, 'variant_id');
+}
+
+    
 
     protected $casts = ['attributes' => 'array'];
     public function product(){ return $this->belongsTo(Product::class); }
@@ -29,6 +35,7 @@ class ProductVariant extends Model
             ->withPivot(['attribute_id','product_id'])
             ->withTimestamps();
     }
+    
 
  
 }
