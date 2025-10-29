@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\AttributeValueController;
 use App\Http\Controllers\Admin\ProductAttributeController;
+use App\Http\Controllers\Admin\VoucherController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -147,6 +149,34 @@ Route::prefix('admin')->group(function () {
         Route::put('/{variant}',       [ProductVariantController::class, 'update'])->name('update')->whereNumber('variant');
         Route::delete('/{variant}',    [ProductVariantController::class, 'destroy'])->name('destroy')->whereNumber('variant');
     });
+    Route::pattern('voucher', '[0-9]+');
+
+    Route::prefix('voucher')->name('admin.voucher.')->group(function () {
+        Route::get('/', [VoucherController::class, 'index'])->name('index');
+        Route::get('/create', [VoucherController::class, 'create'])->name('create');
+        Route::post('/store', [VoucherController::class, 'store'])->name('store');
+    
+        // bulk routes — đặt TRƯỚC route động
+        Route::post('/bulk-delete', [VoucherController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::get('/trashed', [VoucherController::class, 'trashed'])->name('trashed');
+        Route::post('/bulk-restore', [VoucherController::class, 'bulkRestore'])->name('bulk-restore');
+        Route::delete('/bulk-force-delete', [VoucherController::class, 'bulkForceDelete'])->name('bulk-force-delete');
+    
+        // route động 
+        Route::get('/{voucher}/edit', [VoucherController::class, 'edit'])->name('edit');
+        Route::put('/{voucher}', [VoucherController::class, 'update'])->name('update');
+        Route::delete('/{voucher}', [VoucherController::class, 'destroy'])->name('destroy');
+    });
+    
+
+
+
+
+
+
+
+
+
 });
 
 

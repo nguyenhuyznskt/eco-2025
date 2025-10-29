@@ -12,11 +12,15 @@ class Voucher extends Model
     use HasFactory;
     use SoftDeletes;
     protected $fillable = [
-        'code','name','description','type','value','max_discount','min_order',
-        'usage_limit','usage_per_user','starts_at','ends_at','is_active','meta'
+        'code', 'type', 'value', 'max_value', 'min_order_amount',
+        'start_at', 'end_at', 'usage_limit_global', 'usage_limit_per_user',
+        'used_count', 'is_active', 'meta',
     ];
     protected $casts = [
-        'starts_at'=>'datetime','ends_at'=>'datetime','is_active'=>'boolean','meta'=>'array'
+        'meta' => 'array',
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     public function users(): BelongsToMany

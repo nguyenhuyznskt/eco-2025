@@ -134,8 +134,8 @@
                 </a>
               </li>
             
-              <li class="menu-item {{ request()->routeIs('vouchers.*') ? 'active' : '' }}">
-                <a href="{{ route('dashboard') }}" class="menu-link">
+              <li class="menu-item {{ request()->routeIs('admin.voucher.index') ? 'active' : '' }}">
+                <a href="{{ route('admin.voucher.index') }}" class="menu-link">
                   <i class="menu-icon tf-icons bx bx-ticket"></i>
                   <div data-i18n="Analytics">Voucher</div>
                 </a>
