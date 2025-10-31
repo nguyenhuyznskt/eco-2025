@@ -121,31 +121,51 @@
           <span class="text-gray-700 text-sm">Đang tải...</span>
         </div>
       </div>
-
+    
       <table class="min-w-max w-full text-sm text-gray-700 whitespace-nowrap">
         <thead class="bg-gray-100 text-gray-600">
           <tr>
             <th class="px-4 py-3 text-center w-12">
               <input type="checkbox" id="selectAll" class="w-4 h-4">
             </th>
+            <th class="px-4 py-3 text-center font-medium">Ảnh</th>
             <th class="px-4 py-3 text-left font-medium">Tên</th>
             <th class="px-4 py-3 text-left font-medium">Slug</th>
             <th class="px-4 py-3 text-center font-medium">Giá</th>
-            <th class="px-4 py-3 text-center font-medium">meta</th>
+            <th class="px-4 py-3 text-center font-medium">Meta</th>
             <th class="px-4 py-3 text-center font-medium">Biến thể</th>
             <th class="px-4 py-3 text-center font-medium">Hành động</th>
           </tr>
         </thead>
-
+    
         <tbody>
           @forelse($data as $row)
           <tr class="border-t hover:bg-gray-50 transition">
             <td class="px-4 py-3 text-center">
               <input type="checkbox" class="rowCheckbox w-4 h-4" value="{{ $row->id }}">
             </td>
+    
+            {{-- 🖼️ Ảnh --}}
+            <td class="px-4 py-3 text-center">
+              @php
+                $img = $row->image ?? optional($row->images->first())->path ?? null;
+              @endphp
+              @if($img)
+                <img src="{{ asset('storage/'.$img) }}" 
+                     alt="{{ $row->name }}" 
+                     class="w-12 h-12 object-cover rounded-md shadow-sm border mx-auto hover:scale-110 transition-transform duration-200">
+              @else
+                <div class="w-12 h-12 bg-gray-100 border rounded-md flex items-center justify-center text-gray-400 text-xs mx-auto">
+                  N/A
+                </div>
+              @endif
+            </td>
+    
             <td class="px-4 py-3 font-medium text-gray-800">{{ $row->name }}</td>
             <td class="px-4 py-3 text-gray-600">{{ $row->slug }}</td>
             <td class="px-4 py-3 text-center">{{ number_format($row->price, 0, ',', '.') }} VND</td>
+    
+            {{-- Meta --}}
             <td class="px-4 py-3 text-left align-top max-w-[240px]">
               @if(!empty($row->meta))
                 <div class="text-xs text-gray-500 leading-5 overflow-hidden text-ellipsis line-clamp-2"
@@ -161,7 +181,10 @@
                 <span class="text-gray-400 italic">—</span>
               @endif
             </td>
+    
             <td class="px-4 py-3 text-center">{{ $row->variants_count }}</td>
+    
+            {{-- Hành động --}}
             <td class="px-4 py-3 text-right whitespace-nowrap min-w-[120px]">
               <div class="flex justify-end gap-2">
                 <a href="{{ route('admin.product.edit', $row->id) }}"
@@ -180,7 +203,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="7" class="px-4 py-10 text-center text-gray-500">
+            <td colspan="8" class="px-4 py-10 text-center text-gray-500">
               😕 Chưa có sản phẩm nào
             </td>
           </tr>
@@ -188,6 +211,7 @@
         </tbody>
       </table>
     </div>
+    
 
     {{-- ⚙️ Bulk actions & Pagination --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

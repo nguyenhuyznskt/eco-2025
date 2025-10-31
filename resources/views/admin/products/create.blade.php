@@ -20,7 +20,7 @@
   </div>
 
   {{-- 🧾 FORM --}}
-  <form action="{{ route('admin.product.store') }}" method="POST"
+  <form action="{{ route('admin.product.store') }}" method="POST" enctype="multipart/form-data"
         class="bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-8">
     @csrf
 
@@ -31,6 +31,19 @@
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Ảnh đại diện --}}
+<div>
+  <label class="block text-sm font-medium text-gray-700">Ảnh đại diện</label>
+  <input type="file" name="image" id="imageInput" accept="image/*"
+         class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+
+  {{-- Preview ảnh --}}
+  <div class="mt-3 w-32 h-32 border rounded-lg flex items-center justify-center overflow-hidden bg-gray-50">
+    <img id="imagePreview" src="#" alt="Preview" class="hidden w-full h-full object-cover">
+    <span id="noImageText" class="text-gray-400 text-sm">Chưa chọn ảnh</span>
+  </div>
+</div>
+
         <div>
           <label class="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
           <input type="text" name="name" value="{{ old('name') }}" required
@@ -164,7 +177,9 @@
   const btn = document.getElementById('btnGenerate');
   const table = document.getElementById('variantTable');
   const tbody = document.getElementById('variantBody');
-
+  const input = document.getElementById('imageInput');
+  const preview = document.getElementById('imagePreview');
+  const noImg = document.getElementById('noImageText');
   const cartesian = (arrays) => arrays.reduce((a, b) => a.flatMap(d => b.map(e => [].concat(d, e))), [[]]);
 
   btn.addEventListener('click', () => {
@@ -182,6 +197,21 @@
       alert('⚠️ Chọn ít nhất 1 thuộc tính!');
       return;
     }
+// 🖼️ Preview ảnh đại diện
+    if (input) {
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove('hidden');
+      noImg.classList.add('hidden');
+    } else {
+      preview.src = '#';
+      preview.classList.add('hidden');
+      noImg.classList.remove('hidden');
+    }
+  });
+}
 
     const combos = cartesian(groups.map(g => g.items));
     tbody.innerHTML = '';

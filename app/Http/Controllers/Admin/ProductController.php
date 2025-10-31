@@ -16,7 +16,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use App\Models\Categories;
 use App\Models\Vendor;
-
+use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     public function __construct(
@@ -30,7 +30,7 @@ class ProductController extends Controller
         // Lấy toàn bộ danh mục
         $allCategories = Categories::select('id', 'parent_id', 'name')->get();
     
-        // ✅ Đặt hàm helper ngay TRƯỚC khi dùng
+        // ✅ Hàm đệ quy lấy tất cả ID con
         $getAllChildCategoryIds = function ($all, $parentId) use (&$getAllChildCategoryIds) {
             $ids = [$parentId];
             foreach ($all->where('parent_id', $parentId) as $child) {
@@ -39,8 +39,9 @@ class ProductController extends Controller
             return $ids;
         };
     
-        // Truy vấn sản phẩm
+        // ✅ Truy vấn sản phẩm
         $q = Product::query()
+            ->with(['images']) // 🟢 Thêm dòng này để load ảnh
             ->withCount('variants')
             ->when($request->keyword, fn($qq, $kw) =>
                 $qq->where(fn($sub) =>
@@ -48,7 +49,6 @@ class ProductController extends Controller
                         ->orWhere('slug', 'like', "%{$kw}%")
                 )
             )
-            // ✅ Lọc theo cây danh mục cha–con
             ->when($request->category_id, function ($qq, $catId) use ($allCategories, $getAllChildCategoryIds) {
                 $childIds = $getAllChildCategoryIds($allCategories, $catId);
                 $qq->whereIn('category_id', $childIds);
@@ -70,6 +70,7 @@ class ProductController extends Controller
     
         return view('admin.products.index', compact('data', 'categories', 'vendors'));
     }
+    
     
 
 
@@ -141,11 +142,14 @@ class ProductController extends Controller
                 }
             }
         }
+        
+        
 
         $svc->create($productData, $attrMap, $variants);
 
         return redirect()->route('admin.product.index')->with('success', 'Đã tạo sản phẩm và biến thể.');
     }
+   
 
 
     public function edit(Product $product): View
@@ -200,8 +204,15 @@ class ProductController extends Controller
 
         // ảnh đại diện (nếu có cập nhật)
         if ($request->hasFile('image')) {
+            // 🔹 Xóa ảnh cũ (nếu có)
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+        
+            // 🔹 Lưu ảnh mới
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+        
 
         // 🔹 GOM THÔNG TIN KỸ THUẬT
         $keys = $request->input('spec_key', []);

@@ -68,7 +68,7 @@ $variant = ProductVariant::create([
                 if (!empty($combo['image'])) {
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'variant_id' => $variant->id,
+                        'product_variant_id' => $variant->id,
                         'path'       => $combo['image'],
                         'is_primary' => 1,
                     ]);
