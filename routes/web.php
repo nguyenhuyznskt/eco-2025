@@ -124,6 +124,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/',               [ProductController::class, 'index'])->name('index');
         Route::get('/create',         [ProductController::class, 'create'])->name('create');
         Route::post('/store',         [ProductController::class, 'store'])->name('store');
+        Route::get('/{product}', [ProductController::class, 'show'])->name('show');
     
         // dynamic
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit')->whereNumber('product');
@@ -153,6 +154,8 @@ Route::prefix('admin')->group(function () {
 
     Route::prefix('voucher')->name('admin.voucher.')->group(function () {
         Route::get('/', [VoucherController::class, 'index'])->name('index');
+       
+
         Route::get('/create', [VoucherController::class, 'create'])->name('create');
         Route::post('/store', [VoucherController::class, 'store'])->name('store');
     

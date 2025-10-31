@@ -198,23 +198,19 @@ class ProductController extends Controller
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
         ]);
-
+    
         $validated['is_active']   = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
-
-        // ảnh đại diện (nếu có cập nhật)
+    
+        // Ảnh đại diện
         if ($request->hasFile('image')) {
-            // 🔹 Xóa ảnh cũ (nếu có)
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
-        
-            // 🔹 Lưu ảnh mới
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
-        
-
-        // 🔹 GOM THÔNG TIN KỸ THUẬT
+    
+        // Meta
         $keys = $request->input('spec_key', []);
         $vals = $request->input('spec_value', []);
         $meta = [];
@@ -224,13 +220,23 @@ class ProductController extends Controller
             if ($k !== '') $meta[$k] = $v;
         }
         $validated['meta'] = $meta;
-
+    
         $attrMap  = $request->input('attribute_values', []);
         $combos   = $request->input('combinations', []);
         $replace  = $request->boolean('replace_variants', false);
-
+    
+        // ✅ Lưu ảnh mới của biến thể (nếu có)
+        if ($request->has('combinations')) {
+            foreach ($request->file('combinations', []) ?? [] as $idx => $files) {
+                if (!empty($files['image'])) {
+                    $combos[$idx]['image'] = $files['image']->store('variants', 'public');
+                }
+            }
+        }
+    
+        // 🟢 Gọi service
         $this->svc->update($product, $validated, $attrMap, $combos, $replace);
-
+    
         return redirect()->route('admin.product.index')->with('success', 'Cập nhật sản phẩm thành công.');
     }
 
@@ -288,4 +294,16 @@ class ProductController extends Controller
         $deleted = $this->trash->forceDeleteAll(Product::class);
         return back()->with('success', "Đã xóa vĩnh viễn toàn bộ ({$deleted})");
     }
+    public function show(Product $product): View
+{
+    $product->load([
+        'category',
+        'vendor',
+        'variants.images',
+        'images',
+    ]);
+
+    return view('admin.products.show', compact('product'));
+}
+
 }

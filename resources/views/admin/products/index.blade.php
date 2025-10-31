@@ -113,7 +113,8 @@
     @csrf
     <input type="hidden" name="_method" id="bulkMethod" value="POST">
 
-    <div id="tableContainer" class="bg-white rounded-2xl shadow border border-gray-200 overflow-x-auto relative">
+    <div id="tableContainer" class="bg-white rounded-2xl shadow border border-gray-200 overflow-hidden relative">
+
       {{-- 🔄 Loader --}}
       <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
         <div class="flex flex-col items-center">
@@ -166,7 +167,7 @@
             <td class="px-4 py-3 text-center">{{ number_format($row->price, 0, ',', '.') }} VND</td>
     
             {{-- Meta --}}
-            <td class="px-4 py-3 text-left align-top max-w-[240px]">
+            <td class="px-4 py-3 text-left align-top meta-cell">
               @if(!empty($row->meta))
                 <div class="text-xs text-gray-500 leading-5 overflow-hidden text-ellipsis line-clamp-2"
                      style="-webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical;">
@@ -187,6 +188,11 @@
             {{-- Hành động --}}
             <td class="px-4 py-3 text-right whitespace-nowrap min-w-[120px]">
               <div class="flex justify-end gap-2">
+                <a href="{{ route('admin.product.show', $row->id) }}"
+                  class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+                 👁 Xem
+               </a>
+               
                 <a href="{{ route('admin.product.edit', $row->id) }}"
                    class="px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                   ✏️ Sửa
@@ -228,6 +234,25 @@
     </div>
   </form>
 </div>
+
+
+
+<style>
+  /* Ẩn bớt nội dung quá dài trong bảng */
+  td {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  td.meta-cell {
+    white-space: normal !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* chỉ hiển thị 2 dòng */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
 
 {{-- 💡 Script --}}
 <script>

@@ -54,14 +54,19 @@ if ($rawSku === '' || $rawSku === null) {
     $rawSku = $base . '-' . $uniq;
 }
 
+// ✅ Tự động gán giá nếu chưa nhập
+$price = Arr::get($combo, 'price');
+$compare = Arr::get($combo, 'compare_price');
+
 $variant = ProductVariant::create([
     'product_id'    => $product->id,
     'sku'           => $rawSku,
     'attributes'    => ['value_ids' => $valueIds],
-    'price'         => Arr::get($combo, 'price', 0),
-    'compare_price' => Arr::get($combo, 'compare_price', 0),
+    'price'         => $price !== null && $price !== '' ? $price : $product->price,
+    'compare_price' => $compare !== null && $compare !== '' ? $compare : $product->compare_price,
     'is_active'     => Arr::get($combo, 'is_active', 1),
 ]);
+
 
     
                 // 🔹 6. Nếu biến thể có ảnh, lưu vào bảng product_images
@@ -96,6 +101,9 @@ $variant = ProductVariant::create([
     }
     
 
+   /** -------------------
+     * 🟡 UPDATE PRODUCT
+     * ------------------- */
     public function update(
         Product $product,
         array $productData,
@@ -105,38 +113,54 @@ $variant = ProductVariant::create([
     ): Product {
         return DB::transaction(function () use ($product, $productData, $attrMap, $combinations, $replaceVariants) {
             $product->update($productData);
-    
-            // cập nhật attribute map cấp product
+
+            // Đồng bộ attribute cấp product
             $this->syncProductAttributeValues($product->id, $attrMap);
-    
+
             if ($replaceVariants) {
-                // xoá các variant cũ
+                // Xóa các variant cũ
                 DB::table('product_attribute_values')
                     ->where('product_id', $product->id)
                     ->whereNotNull('product_variant_id')
                     ->delete();
-    
+
                 ProductVariant::where('product_id', $product->id)->delete();
-    
-                // tạo lại variants
+
+                // Tạo lại variants
                 foreach ($combinations as $combo) {
                     $valueIds = Arr::get($combo, 'value_ids', []);
                     sort($valueIds);
-    
+
+                    $rawSku = trim((string) Arr::get($combo, 'sku')) ?: Str::slug($product->name) . '-' . strtoupper(Str::random(5));
+
+                    // ✅ Fallback giá nếu trống
+                    $price = Arr::get($combo, 'price');
+                    $compare = Arr::get($combo, 'compare_price');
+
                     $variant = ProductVariant::create([
                         'product_id'    => $product->id,
-                        'sku'           => trim((string) Arr::get($combo, 'sku')) ?: 'SKU-' . uniqid(),
+                        'sku'           => $rawSku,
                         'attributes'    => ['value_ids' => $valueIds],
-                        'price'         => (float) Arr::get($combo, 'price', 0),
-                        'compare_price' => (float) Arr::get($combo, 'compare_price', 0),
+                        'price'         => $price !== null && $price !== '' ? (float)$price : (float)$product->price,
+                        'compare_price' => $compare !== null && $compare !== '' ? (float)$compare : (float)$product->compare_price,
                         'is_active'     => (int) Arr::get($combo, 'is_active', 1),
                     ]);
-    
-                    // gán pivot attribute_value cho từng variant
+
+                    // Ảnh biến thể (nếu có upload)
+                    if (!empty($combo['image'])) {
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'variant_id' => $variant->id,
+                            'path'       => $combo['image'],
+                            'is_primary' => 1,
+                        ]);
+                    }
+
+                    // Gán attribute value
                     $pairs = DB::table('attribute_values')
                         ->whereIn('id', $valueIds)
                         ->get(['id as attribute_value_id', 'attribute_id']);
-    
+
                     $pivotRows = [];
                     foreach ($pairs as $p) {
                         $pivotRows[] = [
@@ -148,15 +172,14 @@ $variant = ProductVariant::create([
                             'updated_at'         => now(),
                         ];
                     }
-                    if ($pivotRows) {
-                        DB::table('product_attribute_values')->insert($pivotRows);
-                    }
+                    if ($pivotRows) DB::table('product_attribute_values')->insert($pivotRows);
                 }
             }
-    
+
             return $product;
         });
     }
+    
     
 
     /** attrMap: [attribute_id => [value_id,...]] */

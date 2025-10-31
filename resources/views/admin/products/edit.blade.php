@@ -190,12 +190,33 @@
                      {{ $variant->is_active ? 'checked' : '' }}>
             </td>
             <td class="px-4 py-2 text-center">
-              @php $img = $variant->image_url ?? null; @endphp
+              @php
+                  $img = optional($variant->images->first())->path ?? null;
+              @endphp
+            
+              {{-- Ảnh cũ --}}
               @if($img)
-                <img src="{{ asset('storage/'.$img) }}" class="w-10 h-10 inline-block rounded border">
+                <div class="relative group inline-block">
+                  <img src="{{ asset('storage/'.$img) }}" alt="variant image"
+                       class="w-12 h-12 object-cover rounded-md border shadow-sm mx-auto group-hover:opacity-75 transition">
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition">
+                    Ảnh cũ
+                  </div>
+                </div>
+              @else
+                <div class="w-12 h-12 bg-gray-100 border rounded-md flex items-center justify-center text-gray-400 text-xs mx-auto">
+                  N/A
+                </div>
               @endif
-              <input type="file" name="combinations[{{ $i }}][image]" class="text-xs mt-1">
+            
+              {{-- Ảnh mới --}}
+              <div class="mt-2 text-xs">
+                <label class="block text-gray-600 mb-1">Ảnh mới:</label>
+                <input type="file" name="combinations[{{ $i }}][image]" accept="image/*"
+                       class="text-xs file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 transition">
+              </div>
             </td>
+            
             <td class="px-4 py-2 text-right">
               <button type="button" class="text-red-600 remove">Xóa</button>
             </td>
