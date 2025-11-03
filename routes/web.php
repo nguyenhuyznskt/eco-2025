@@ -121,28 +121,32 @@ Route::prefix('admin')->group(function () {
 
     // routes/web.php (bên trong Route::prefix('admin')->group(...))
     Route::prefix('product')->name('admin.product.')->group(function () {
-        Route::get('/',               [ProductController::class, 'index'])->name('index');
-        Route::get('/create',         [ProductController::class, 'create'])->name('create');
-        Route::post('/store',         [ProductController::class, 'store'])->name('store');
-        Route::get('/{product}', [ProductController::class, 'show'])->name('show');
+
+        // Trang danh sách chính
+        Route::get('/', [ProductController::class, 'index'])->name('index');
     
-        // dynamic
+        // Thùng rác (đưa lên trên trước /{product})
+        Route::get('/trashed', [ProductController::class, 'trashed'])->name('trashed');
+        Route::post('/bulk-restore', [ProductController::class, 'bulkRestore'])->name('bulk-restore');
+        Route::match(['POST', 'DELETE'], '/bulk-force-delete', [ProductController::class, 'bulkForceDelete'])->name('bulk-force-delete');
+        Route::delete('/force-delete-all', [ProductController::class, 'forceDeleteAll'])->name('force-delete-all');
+        Route::post('/{id}/restore', [ProductController::class, 'restore'])->name('restore')->whereNumber('id');
+        Route::delete('/{id}/force', [ProductController::class, 'forceDelete'])->name('force-delete')->whereNumber('id');
+    
+        // CRUD chính
+        Route::get('/create', [ProductController::class, 'create'])->name('create');
+        Route::post('/store', [ProductController::class, 'store'])->name('store');
         Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit')->whereNumber('product');
-        Route::put('/{product}',      [ProductController::class, 'update'])->name('update')->whereNumber('product');
-        Route::delete('/{product}',   [ProductController::class, 'destroy'])->name('destroy')->whereNumber('product');
+        Route::put('/{product}', [ProductController::class, 'update'])->name('update')->whereNumber('product');
+        Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy')->whereNumber('product');
     
-        // bulk soft delete (từ index)
-        Route::post('/bulk-delete',   [ProductController::class, 'bulkDelete'])->name('bulk-delete');
+        // Bulk delete từ index
+        Route::post('/bulk-delete', [ProductController::class, 'bulkDelete'])->name('bulk-delete');
     
-        // trash
-        Route::get('/trashed',                      [ProductController::class, 'trashed'])->name('trashed');
-        Route::post('/bulk-restore',                [ProductController::class, 'bulkRestore'])->name('bulk-restore');
-        Route::match(['POST','DELETE'],'/bulk-force-delete', [ProductController::class, 'bulkForceDelete'])->name('bulk-force-delete');
-        Route::delete('/force-delete-all',          [ProductController::class, 'forceDeleteAll'])->name('forceDeleteAll');
-    
-        Route::post('/{id}/restore',                [ProductController::class, 'restore'])->name('restore')->whereNumber('id');
-        Route::delete('/{id}/force',                [ProductController::class, 'forceDelete'])->name('force-delete')->whereNumber('id');
+        // Show phải đặt cuối cùng
+        Route::get('/{product}', [ProductController::class, 'show'])->name('show')->whereNumber('product');
     });
+    
     
     // PRODUCT VARIANTS (dùng trong trang create/edit product)
     Route::prefix('product/{product}/variants')->name('admin.product.variant.')->whereNumber('product')->group(function () {

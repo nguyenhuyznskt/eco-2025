@@ -56,7 +56,7 @@
         <button type="button" id="bulkDeleteBtn"
                 data-action="{{ route('admin.product.bulk-force-delete') }}" data-method="DELETE"
                 class="px-3 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50" disabled>Xóa vĩnh viễn</button>
-        <form action="{{ route('admin.product.forceDeleteAll') }}" method="POST" onsubmit="return confirm('Xóa sạch thùng rác?')">
+        <form action="{{ route('admin.product.force-delete-all') }}" method="POST" onsubmit="return confirm('Xóa sạch thùng rác?')">
           @csrf @method('DELETE')
           <button class="px-3 py-2 bg-red-100 rounded-lg">Xóa hết</button>
         </form>
